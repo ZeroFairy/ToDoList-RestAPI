@@ -98,7 +98,7 @@ class UserController extends ResourceController
             $tokenPayload = [
                 'id' => $user['id'],
                 'email' => $user['email'],
-                'expire' => time() + (60 * 60) // Token expiration (1 hour)
+                'exp' => time() + (60 * 60) // Token expiration (1 hour)
             ];
 
             $secretKey = config('App')->JWT_SECRET_KEY;
