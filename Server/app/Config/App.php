@@ -199,4 +199,15 @@ class App extends BaseConfig
      * @see http://www.w3.org/TR/CSP/
      */
     public bool $CSPEnabled = false;
+
+    // Define JWT secret key
+    public $JWT_SECRET_KEY;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Load JWT_SECRET_KEY from .env
+        $this->JWT_SECRET_KEY = getenv('JWT_SECRET_KEY');
+    }
 }
