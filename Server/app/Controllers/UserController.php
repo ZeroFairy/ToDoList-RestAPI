@@ -98,7 +98,7 @@ class UserController extends ResourceController
             $tokenPayload = [
                 'id' => $user['id'],
                 'email' => $user['email'],
-                'expire' => time() + (60 * 60) // Token expiration (1 hour)
+                'exp' => time() + (60 * 60) // Token expiration (1 hour)
             ];
 
             $secretKey = config('App')->JWT_SECRET_KEY;
@@ -106,11 +106,7 @@ class UserController extends ResourceController
 
             // Return token to the client
             return $this->respond(['token' => $token], 200);
-
-            // return $this->output
-            //             ->setStatusCode(200)  // Set HTTP 200 status code for success
-            //             ->setContentType('application/json')
-            //             ->setOutput(json_encode(['token' => $token]));
+            
         } else {
             $data = [
                 'message' => 'password wrong'
@@ -222,10 +218,8 @@ class UserController extends ResourceController
 
         $password = $this->request->getVar('new_password');
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        // $passwordTwo = $this->request->getVar('new_password_two');
 
         if (password_verify($enterPassword, $user['password'])) {
-            // if ($password == $passwordTwo) {
                 $this->model->update($id, [
                     'nama' => esc($this->request->getVar('nama')),
                     'password' => $hashedPassword
@@ -236,12 +230,6 @@ class UserController extends ResourceController
                 ];
 
                 return $this->respond($response, 200);
-            // } else {
-            //     $data = [
-            //         'message' => 'password tidak sesuai'
-            //     ];
-            //     return $this ->respond($data,401);
-            // }
         } else {
             $data = [
                 'message' => 'password wrong'
