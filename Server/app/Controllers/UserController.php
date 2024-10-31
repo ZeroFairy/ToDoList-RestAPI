@@ -81,14 +81,14 @@ class UserController extends ResourceController
         ]);
         
         $enterEmail = $this->request->getVar('email');
-        echo "Enter email: " . $enterEmail;
+        // echo "Enter email: " . $enterEmail;
 
         $user = $this->model->select('id, nama, email, password')->where('email', $enterEmail)->get()->getRowArray();
-        echo "User by Email: " . $user['email'];
-        echo "Stored Password Hash: " . $user['password'];
+        // echo "User by Email: " . $user['email'];
+        // echo "Stored Password Hash: " . $user['password'];
 
         $enterPassword = $this->request->getVar('password');
-        echo "Entered Password: " . $enterPassword;
+        // echo "Entered Password: " . $enterPassword;
 
         if ($user == null) {
             return $this->FailNotFound('Data user not found');
@@ -159,7 +159,7 @@ class UserController extends ResourceController
             'password' => $hashedPassword
         ]);
 
-        echo "Hashed Password: " . $hashedPassword;
+        // echo "Hashed Password: " . $hashedPassword;
 
         $response = [
             'message' => 'Data User Berhasil Dibuat'
@@ -195,14 +195,6 @@ class UserController extends ResourceController
             'new_password' => 'required|min_length[8]',
             'new_password_two' => 'required|matches[new_password]|min_length[8]'
         ]);
-
-        // if (!$rules) {
-        //     $response = [
-        //         'message' => $this->validator->getErrors()
-        //     ];
-
-        //     return $this->failValidationErrors($response);
-        // }
 
         if (!$rules) {
             log_message('error', 'Validation failed: ' . json_encode($this->validator->getErrors()));
