@@ -7,12 +7,6 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
-// $routes->get('/server/user', 'UserController::index');
-// $routes->post('/server/user/(:num)', 'UserController::show/$1');
-// $routes->delete('/server/user/(:num)', 'UserController::delete/$1');
-// $routes->put('/server/user/(:num)', 'UserController::update/$1');
-// $routes->post('/server/user/update/(:num)', 'UserController::update/$1');
-
 // Routers for User
 $routes->post('/server/login', 'UserController::login');
 $routes->post('/server/user', 'UserController::signup'); //create
@@ -24,5 +18,10 @@ $routes->group('server/user', ['filter' => 'auth'], function($routes) {
     $routes->delete('(:num)', 'UserController::delete/$1');  // Protected route
 });
 
+
 // Routers for Todo
+$routes->group('server/todo', ['filter' => 'auth'], function($routes) {
+    $routes->post('/', 'TodoController::create');  // Protected route
+});
+
 
