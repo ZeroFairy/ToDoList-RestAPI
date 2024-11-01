@@ -21,6 +21,7 @@ $routes->group('server/user', ['filter' => 'auth'], function($routes) {
 
 // Routers for Todo
 $routes->group('server/todo', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'TodoController::index');  // Protected route
     $routes->post('/', 'TodoController::create');  // Protected route
 });
 
