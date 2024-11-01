@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
+use Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
 
 class TodoController extends ResourceController
 {
@@ -54,23 +56,29 @@ class TodoController extends ResourceController
     public function create()
     {
         $rules = $this->validate([
-            'task' => 'required'
+            'task' => 'required', 
         ]);
-
+        
         if (!$rules) {
             $reponse = [
                 'message' => $this->validator->getErrors()
             ];
-
+            
             return $this->failValidator($reponse);
         }
 
-        $id_user = 
+        $id_user = $this->request->user->id;
 
         $this->model->insert([
             'task' => esc($this->request->getVar('task')),
             'id_user' => $id_user
         ]);
+
+        $response = [
+            'message' => 'Data Task Berhasil Dibuat'
+        ];
+
+        return $this->respondCreated($response);
     }
 
     /**
