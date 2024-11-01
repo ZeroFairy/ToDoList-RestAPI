@@ -105,7 +105,7 @@ class TodoController extends ResourceController
 
         // Prepare the response data
         $response = [
-            'message' => 'Task status updated successfully',
+            'message' => 'Status Task Berhasil Diubah',
             'data' => [
                 'id' => $id,
                 'status' => $newStatus
@@ -142,7 +142,7 @@ class TodoController extends ResourceController
     
         // Prepare the response data
         $response = [
-            'message' => 'Task has been updated successfully',
+            'message' => 'Isi Task berhasil diubah',
             'data' => [
                 'id' => $id,
                 'task' => $task
