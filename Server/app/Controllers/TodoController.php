@@ -161,6 +161,12 @@ class TodoController extends ResourceController
      */
     public function delete($id = null)
     {
-        //
+        $this->model->delete($id);
+
+        $response = [
+            'message' => 'Task Berhasil Dihapus'
+        ];
+
+        return $this->respondDeleted($response);
     }
 }
