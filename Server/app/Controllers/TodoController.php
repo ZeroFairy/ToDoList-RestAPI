@@ -124,7 +124,32 @@ class TodoController extends ResourceController
      */
     public function update($id = null)
     {
-        //
+        $rules = $this->validate([
+            'task' => 'required', 
+        ]);
+        
+        if (!$rules) {
+            $reponse = [
+                'message' => $this->validator->getErrors()
+            ];
+            
+            return $this->fail($reponse);
+        }
+
+        $task = esc($this->request->getVar('task'));
+
+        $this->model->update($id, ['task' => $task]);
+    
+        // Prepare the response data
+        $response = [
+            'message' => 'Task has been updated successfully',
+            'data' => [
+                'id' => $id,
+                'task' => $task
+            ]
+        ];
+
+        return $this->respond($response, 200);
     }
 
     /**
