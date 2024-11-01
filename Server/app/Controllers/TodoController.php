@@ -97,7 +97,22 @@ class TodoController extends ResourceController
      */
     public function edit($id = null)
     {
-        //
+        $task = $this->model->find($id);
+        $newStatus = ($task['status'] === 'unfinished') ? 'finished' : 'unfinished';
+
+        // Update the status in the database
+        $this->model->update($id, ['status' => $newStatus]);
+
+        // Prepare the response data
+        $response = [
+            'message' => 'Task status updated successfully',
+            'data' => [
+                'id' => $id,
+                'status' => $newStatus
+            ]
+        ];
+
+        return $this->respond($response, 200);
     }
 
     /**
