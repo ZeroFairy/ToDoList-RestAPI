@@ -25,6 +25,7 @@ $routes->group('server/todo', ['filter' => 'auth'], function($routes) {
     $routes->post('/', 'TodoController::create');  // Protected route
     $routes->post('update/(:num)', 'TodoController::update/$1');  // Protected route
     $routes->post('(:num)', 'TodoController::edit/$1');  // Protected route
+    $routes->delete('(:num)', 'TodoController::delete/$1');  // Protected route
 });
 
 
