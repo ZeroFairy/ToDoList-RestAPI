@@ -23,6 +23,7 @@ $routes->group('server/user', ['filter' => 'auth'], function($routes) {
 $routes->group('server/todo', ['filter' => 'auth'], function($routes) {
     $routes->get('/', 'TodoController::index');  // Protected route
     $routes->post('/', 'TodoController::create');  // Protected route
+    $routes->post('update/(:num)', 'TodoController::update/$1');  // Protected route
     $routes->post('(:num)', 'TodoController::edit/$1');  // Protected route
 });
 
