@@ -69,17 +69,16 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, array<string, string>>>|array<string, list<string>>
      */
-    public array $globals = [
+    public $globals = [
         'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
+            'cors', // Add the CORS middleware to all requests
+            'auth' => ['except' => ['login', 'signup']], // Your existing auth middleware, allowing public access to login and signup
         ],
         'after' => [
-            // 'honeypot',
-            // 'secureheaders',
+            // Optionally, add other filters that you may need after the response is sent
         ],
     ];
+    
 
     /**
      * List of filter aliases that works on a

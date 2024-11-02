@@ -9,20 +9,20 @@ use \Firebase\JWT\Key;
 
 class TodoController extends ResourceController
 {
-    public function __construct()
-    {
-        parent::__construct(); // Call the parent constructor
+    // public function __construct()
+    // {
+    //     parent::__construct(); // Call the parent constructor
         
-        // Set CORS headers
-        header("Access-Control-Allow-Origin: http://localhost:5173"); // Your frontend URL
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+    //     // Set CORS headers
+    //     header("Access-Control-Allow-Origin: http://localhost:5173"); // Your frontend URL
+    //     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    //     header("Access-Control-Allow-Headers: Content-Type, Authorization");
         
-        // Handle preflight requests
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            exit(); // End the preflight request here
-        }
-    }
+    //     // Handle preflight requests
+    //     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    //         exit(); // End the preflight request here
+    //     }
+    // }
     
     protected $modelName = 'App\Models\ToDo';
     protected $format = 'json';
