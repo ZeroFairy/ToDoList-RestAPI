@@ -36,6 +36,7 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         
         'auth'          => \App\Filters\AuthMiddleware::class,
+        'cors'          => \App\Filters\CorsMiddleware::class,
     ];
 
     /**
@@ -69,15 +70,15 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, array<string, string>>>|array<string, list<string>>
      */
-    public $globals = [
+    public array $globals = [
         'before' => [
-            'cors', // Add the CORS middleware to all requests
-            'auth' => ['except' => ['login', 'signup']], // Your existing auth middleware, allowing public access to login and signup
+            'cors'
         ],
         'after' => [
-            // Optionally, add other filters that you may need after the response is sent
-        ],
+            'cors'
+        ]
     ];
+    
     
 
     /**

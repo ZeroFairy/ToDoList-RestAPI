@@ -9,13 +9,20 @@ export const LoginPage = () => {
     const navigate = useNavigate();
 
     // Check token validity on page load
+    // useEffect(() => {
+    //     const token = Cookies.get('ToDoToken');
+    //     if (token) {
+    //         // Verify token with API using the todo endpoint
+    //         todo(token)
+    //             .then(() => navigate('/server/todo')) // Redirect if token is valid
+    //             .catch(() => Cookies.remove('ToDoToken')); // Remove invalid token
+    //     }
+    // }, [navigate]);
+
     useEffect(() => {
         const token = Cookies.get('ToDoToken');
         if (token) {
-            // Verify token with API using the todo endpoint
-            todo({ headers: { Authorization: `Bearer ${token}` } })
-                .then(() => navigate('/server/todo')) // Redirect if token is valid
-                .catch(() => Cookies.remove('ToDoToken')); // Remove invalid token
+            navigate('/todo');
         }
     }, [navigate]);
 
@@ -26,13 +33,42 @@ export const LoginPage = () => {
     };
 
     // Submit form data to the server
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setError(null);
+    //     try {
+    //         console.log('Submit');
+    //         const response = await login(formData); // Use login from api.js
+    //         // const response = await axios.post('http://localhost:8081/server/login', formData['email', 'password']); // Use login from api.js
+    //         console.log('Response');
+    //         Cookies.set('ToDoToken', response.data.token, { secure: true, sameSite: 'Strict' });
+
+    //         console.log(Cookies.get('ToDoToken'));
+
+    //         navigate('/todo'); // Redirect on successful login
+    //     } catch (error) {
+    //         setError(error.response?.data?.message || 'Login failed. Please try again.');
+    //     }
+    //     setFormData("");
+    // };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
         try {
-            const response = await login(formData); // Use login from api.js
-            Cookies.set('ToDoToken', response.data.token, { secure: true, sameSite: 'Strict' });
-            navigate('/server/todo'); // Redirect on successful login
+            console.log('Submit');
+            const response = await login(formData);
+            console.log('Response');
+            const { token } = response.data;
+            
+            // Store token in cookie with secure settings
+            Cookies.set('ToDoToken', token, {
+                secure: true,
+                sameSite: 'strict',
+                expires: 1 // 1 day
+            });
+
+            navigate('/todo');
         } catch (error) {
             setError(error.response?.data?.message || 'Login failed. Please try again.');
         }
@@ -43,7 +79,7 @@ export const LoginPage = () => {
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <input
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Email"
                     value={formData.email}

@@ -15,6 +15,14 @@ class AuthMiddleware implements FilterInterface
 {
     public function before(RequestInterface $request, $arguments = null)
     {
+        // header("Access-Control-Allow-Origin: *");
+        // header("Access-Control-Allow-Headers: X-API-KEY, Origin,X-Requested-With, Content-Type, Accept, Access-Control-Requested-Method, Authorization, strict-origin-when-cross-origin");
+        // header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PATCH, PUT, DELETE");
+        // $method = $_SERVER['REQUEST_METHOD'];
+        // if($method == "OPTIONS"){
+        //     die();
+        // }
+
         // Get the Authorization header from the request
         $header = $request->getHeaderLine('Authorization');
         $token = $header ? str_replace('Bearer ', '', $header) : null;

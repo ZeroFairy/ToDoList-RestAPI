@@ -10,21 +10,6 @@ use Config\Services;
 
 class UserController extends ResourceController
 {
-    // public function __construct()
-    // {
-    //     parent::__construct(); // Call the parent constructor
-
-    //     // Set CORS headers
-    //     header("Access-Control-Allow-Origin: http://localhost:5173"); // Your frontend URL
-    //     header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-    //     header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-    //     // Handle preflight requests
-    //     if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    //         exit(); // End the preflight request here
-    //     }
-    // }
-
     protected $modelName = 'App\Models\User';
     protected $format = 'json';
     
@@ -40,7 +25,7 @@ class UserController extends ResourceController
             'data_user' => $this->model->orderBy('id', 'ASC')->findAll()
         ];
 
-        return $this->respond($data, 200);
+        return $this->respond(setJSON($data), 200);
     }
 
     // /**
@@ -91,45 +76,122 @@ class UserController extends ResourceController
      */
     public function login()
     {
+        // Set proper content type header
+        $this->response->setHeader('Content-Type', 'application/json');
+
         $rules = $this->validate([
             'email' => 'required',
             'password' => 'required|min_length[8]'
         ]);
-        
-        $enterEmail = $this->request->getVar('email');
-        // echo "Enter email: " . $enterEmail;
 
-        $user = $this->model->select('id, nama, email, password')->where('email', $enterEmail)->get()->getRowArray();
-        // echo "User by Email: " . $user['email'];
-        // echo "Stored Password Hash: " . $user['password'];
-
-        $enterPassword = $this->request->getVar('password');
-        // echo "Entered Password: " . $enterPassword;
-
-        if ($user == null) {
-            return $this->FailNotFound('Data user not found');
+        if (!$rules) {
+            return $this->response
+                ->setStatusCode(400)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $this->validator->getErrors()
+                ]);
         }
-        
+
+        $enterEmail = $this->request->getVar('email');
+        $enterPassword = $this->request->getVar('password');
+
+        $user = $this->model->select('id, nama, email, password')
+            ->where('email', $enterEmail)
+            ->first();
+
+        if (!$user) {
+            return $this->response
+                ->setStatusCode(404)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ]);
+        }
+
         if (password_verify($enterPassword, $user['password'])) {
             $tokenPayload = [
                 'id' => $user['id'],
                 'email' => $user['email'],
-                'exp' => time() + (60 * 60) // Token expiration (1 hour)
+                'exp' => time() + (60 * 60)
             ];
 
-            $secretKey = config('App')->JWT_SECRET_KEY;
-            $token = JWT::encode($tokenPayload, $secretKey, 'HS256');
+            $token = JWT::encode(
+                $tokenPayload,
+                config('App')->JWT_SECRET_KEY,
+                'HS256'
+            );
 
-            // Return token to the client
-            return $this->respond(['token' => $token], 200);
-            
-        } else {
-            $data = [
-                'message' => 'password wrong'
-            ];
-            return $this ->respond($data,401);
+            return $this->response
+                ->setStatusCode(200)
+                ->setJSON([
+                    'status' => 'success',
+                    'token' => $token,
+                    'user' => [
+                        'id' => $user['id'],
+                        'email' => $user['email'],
+                        'nama' => $user['nama']
+                    ]
+                ]);
         }
+
+        return $this->response
+            ->setStatusCode(401)
+            ->setJSON([
+                'status' => 'error',
+                'message' => 'Invalid password'
+            ]);
     }
+    // public function login()
+    // {
+    //     // header("Access-Control-Allow-Origin: http://localhost:5173");
+    //     // header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+    //     // header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+    //     // if ($this->request->getMethod() === 'options') {
+    //     //     return $this->response->setStatusCode(200); // Handle preflight request
+    //     // }
+
+    //     $rules = $this->validate([
+    //         'email' => 'required',
+    //         'password' => 'required|min_length[8]'
+    //     ]);
+        
+    //     $enterEmail = $this->request->getVar('email');
+    //     // echo "Enter email: " . $enterEmail;
+
+    //     $user = $this->model->select('id, nama, email, password')->where('email', $enterEmail)->get()->getRowArray();
+    //     // echo "User by Email: " . $user['email'];
+    //     // echo "Stored Password Hash: " . $user['password'];
+
+    //     $enterPassword = $this->request->getVar('password');
+    //     // echo "Entered Password: " . $enterPassword;
+
+    //     if ($user == null) {
+    //         return $this->FailNotFound('Data user not found');
+    //     }
+        
+    //     if (password_verify($enterPassword, $user['password'])) {
+    //         $tokenPayload = [
+    //             'id' => $user['id'],
+    //             'email' => $user['email'],
+    //             'exp' => time() + (60 * 60) // Token expiration (1 hour)
+    //         ];
+
+    //         $secretKey = config('App')->JWT_SECRET_KEY;
+    //         $token = JWT::encode($tokenPayload, $secretKey, 'HS256');
+
+    //         // Return token to the client
+    //         return $this->respond(['token' => $token], 200);
+            
+    //     } else {
+    //         $data = [
+    //             'message' => 'password wrong'
+    //         ];
+    //         return $this ->respond(setJSON($data), 401);
+    //     }
+    // }
 
     /**
      * Return a new resource object, with default properties.
