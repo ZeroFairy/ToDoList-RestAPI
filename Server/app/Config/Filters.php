@@ -25,18 +25,18 @@ class Filters extends BaseFilters
      * or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
+        'cors'          => \App\Filters\CORSMiddleware::class,
         'csrf'          => CSRF::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
-        'cors'          => Cors::class,
+        // 'cors'          => Cors::class,
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         
         'auth'          => \App\Filters\AuthMiddleware::class,
-        'cors'          => \App\Filters\CorsMiddleware::class,
     ];
 
     /**
@@ -75,7 +75,10 @@ class Filters extends BaseFilters
             'cors'
         ],
         'after' => [
-            'cors'
+            'cors',
+            'toolbar',
+            'honeypot',
+            'secureheaders'
         ]
     ];
     
@@ -105,5 +108,10 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'cors' => [
+            'before' => ['api/*'],
+            'after' => ['api/*']
+        ],
+    ];
 }

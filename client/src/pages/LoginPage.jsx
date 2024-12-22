@@ -1,77 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { login, todo } from '../services/api'; // Import the API functions
+import axios from 'axios';
 
 export const LoginPage = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Check token validity on page load
-    // useEffect(() => {
-    //     const token = Cookies.get('ToDoToken');
-    //     if (token) {
-    //         // Verify token with API using the todo endpoint
-    //         todo(token)
-    //             .then(() => navigate('/server/todo')) // Redirect if token is valid
-    //             .catch(() => Cookies.remove('ToDoToken')); // Remove invalid token
-    //     }
-    // }, [navigate]);
+    const BASE_URL = 'http://localhost:8081';
+
+    const api = axios.create({
+        baseURL: 'http://localhost:8081',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    });
 
     useEffect(() => {
         const token = Cookies.get('ToDoToken');
         if (token) {
-            navigate('/todo');
+            api.get('/api/todo', {
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(() => navigate('/todo'))
+            .catch((error) => {
+                console.error('Token validation error:', error);
+                Cookies.remove('ToDoToken');
+            });
         }
     }, [navigate]);
-
-    // Update form input
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({ ...prevData, [name]: value }));
-    };
-
-    // Submit form data to the server
-    // const handleSubmit = async (e) => {
-    //     e.preventDefault();
-    //     setError(null);
-    //     try {
-    //         console.log('Submit');
-    //         const response = await login(formData); // Use login from api.js
-    //         // const response = await axios.post('http://localhost:8081/server/login', formData['email', 'password']); // Use login from api.js
-    //         console.log('Response');
-    //         Cookies.set('ToDoToken', response.data.token, { secure: true, sameSite: 'Strict' });
-
-    //         console.log(Cookies.get('ToDoToken'));
-
-    //         navigate('/todo'); // Redirect on successful login
-    //     } catch (error) {
-    //         setError(error.response?.data?.message || 'Login failed. Please try again.');
-    //     }
-    //     setFormData("");
-    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        
         try {
-            console.log('Submit');
-            const response = await login(formData);
-            console.log('Response');
-            const { token } = response.data;
-            
-            // Store token in cookie with secure settings
-            Cookies.set('ToDoToken', token, {
-                secure: true,
-                sameSite: 'strict',
-                expires: 1 // 1 day
+            console.log('Attempting login...');
+            const response = await axios({
+                method: 'POST',
+                url: 'http://localhost:8081/api/login',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: formData
             });
 
-            navigate('/todo');
+            console.log('Login response:', response.data);
+
+            if (response.data.token) {
+                Cookies.set('ToDoToken', response.data.token, {
+                    path: '/',
+                    sameSite: 'lax'
+                });
+                navigate('/todo');
+            }
         } catch (error) {
-            setError(error.response?.data?.message || 'Login failed. Please try again.');
+            console.error('Login error:', error);
+            if (error.response) {
+                // Server responded with an error
+                setError(error.response.data.message);
+            } else if (error.request) {
+                // Request was made but no response
+                setError('No response from server. Please try again.');
+            } else {
+                // Something else went wrong
+                setError('An error occurred. Please try again.');
+            }
         }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
     };
 
     return (

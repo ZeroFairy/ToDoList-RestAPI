@@ -6,48 +6,48 @@ export const api = axios.create({
     baseURL: API_BASE_URL,
     withCredentials: true,
     headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        'Content-Type': 'application/json, text/json',
+        'Accept': 'application/json, text/json',
     },
     responseType: 'json'
 });
 
-// Add request interceptor to handle authorization
-api.interceptors.request.use(
-    (config) => {
-        const token = Cookies.get('ToDoToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+// // Add request interceptor to handle authorization
+// api.interceptors.request.use(
+//     (config) => {
+//         const token = Cookies.get('ToDoToken');
+//         if (token) {
+//             config.headers.Authorization = `Bearer ${token}`;
+//         }
+//         return config;
+//     },
+//     (error) => {
+//         return Promise.reject(error);
+//     }
+// );
 
-// Add response interceptor to handle errors
-api.interceptors.response.use(
-    (response) => {
-        // Ensure response is properly formatted
-        if (response.headers['content-type']?.includes('application/json')) {
-            return response;
-        }
-        throw new Error('Invalid response format');
-    },
-    (error) => {
-        if (error.response?.status === 401) {
-            Cookies.remove('ToDoToken');
-            window.location.href = '/login';
-        }
-        // Properly format error response
-        return Promise.reject({
-            status: error.response?.status,
-            message: error.response?.data?.message || 'An error occurred',
-            data: error.response?.data
-        });
-    }
-);
+// // Add response interceptor to handle errors
+// api.interceptors.response.use(
+//     (response) => {
+//         // Ensure response is properly formatted
+//         if (response.headers['content-type']?.includes('application/json')) {
+//             return response;
+//         }
+//         throw new Error('Invalid response format');
+//     },
+//     (error) => {
+//         if (error.response?.status === 401) {
+//             Cookies.remove('ToDoToken');
+//             window.location.href = '/login';
+//         }
+//         // Properly format error response
+//         return Promise.reject({
+//             status: error.response?.status,
+//             message: error.response?.data?.message || 'An error occurred',
+//             data: error.response?.data
+//         });
+//     }
+// );
 
 export const login = async (credentials) => {
     try {
