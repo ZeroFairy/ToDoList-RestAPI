@@ -175,37 +175,61 @@ class UserController extends ResourceController
      */
     public function signUp()
     {
-        $rules = $this->validate([
-            'nama' => 'required',
-            'email' => 'required',
-            'password' => 'required|min_length[8]',
-            'verify_password' => 'required|matches[password]|min_length[8]'
-        ]);
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: http://localhost:5173');
+        header('Access-Control-Allow-Methods: POST');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept');
 
-        if (!$rules) {
+        try {
+            $rules = $this->validate([
+                'nama' => 'required',
+                'email' => 'required',
+                'password' => 'required|min_length[8]',
+                'verify_password' => 'required|matches[password]|min_length[8]'
+            ]);
+
+            if (!$rules) {
+                return $this->response
+                    ->setStatusCode(400)
+                    ->setJSON([
+                        'status' => 'error',
+                        'message' => 'Validation failed',
+                        'errors' => $this->validator->getErrors()
+                    ]);
+            }
+
+            $enterEmail = $this->request->getVar('email');
+            $user = $this->model->select('email')
+                ->where('email', $enterEmail)
+                ->first();
+
+            if ($user) {
+                return $this->response
+                    ->setStatusCode(404)
+                    ->setJSON([
+                        'status' => 'error',
+                        'message' => 'This email address is already signed'
+                    ]);
+            }
+
+            $password = $this->request->getVar('password');
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+            $this->model->insert([
+                'nama' => esc($this->request->getVar('nama')),
+                'email' => esc($this->request->getVar('email')),
+                'password' => $hashedPassword
+            ]);
+
             $response = [
-                'message' => $this->validator->getErrors()
+                'message' => 'User succeslly signed up'
             ];
 
-            return $this->failValidationErrors($response);
+            return $this->respondCreated($response);
+        } catch (Exception $e) {
+            log_message('error', 'Signup Error', $e->getMessage());
+            return $this->response->setStatusCode(500);
         }
-
-        $password = $this->request->getVar('password');
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-        $this->model->insert([
-            'nama' => esc($this->request->getVar('nama')),
-            'email' => esc($this->request->getVar('email')),
-            'password' => $hashedPassword
-        ]);
-
-        // echo "Hashed Password: " . $hashedPassword;
-
-        $response = [
-            'message' => 'Data User Berhasil Dibuat'
-        ];
-
-        return $this->respondCreated($response);
     }
 
     /**
