@@ -19,14 +19,11 @@ class TodoController extends ResourceController
      */
     public function index()
     {
-        $id_user = $this->request->user->id;
-
         $data = [
             'message' => 'success',
             'data_tasks' => $this
                             ->model
                             ->select('id, task, status, id_user')
-                            ->where('id_user', $id_user)
                             ->orderBy('id', 'ASC')
                             ->findAll()
         ];
@@ -43,7 +40,19 @@ class TodoController extends ResourceController
      */
     public function show($id = null)
     {
-        
+        $id_user = $this->request->user->id;
+
+        $data = [
+            'message' => 'success',
+            'data_tasks' => $this
+                            ->model
+                            ->select('id, task, status, id_user')
+                            ->where('id_user', $id_user)
+                            ->orderBy('id', 'ASC')
+                            ->findAll()
+        ];
+
+        return $this->respond($data, 200);
     }
 
     /**
