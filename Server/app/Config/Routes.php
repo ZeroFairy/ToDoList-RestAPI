@@ -25,6 +25,7 @@ $routes->group('api', function ($routes) {
     // To-Do routes requiring authentication
     $routes->group('todo', ['filter' => 'auth'], function ($routes) {
         $routes->get('/', 'TodoController::index'); // Get all tasks
+        $routes->get('(:num)', 'TodoController::show/$1'); // Get all tasks from usr
         $routes->post('/', 'TodoController::create'); // Create a task
         $routes->post('update/(:num)', 'TodoController::update/$1'); // Update a task
         $routes->post('(:num)', 'TodoController::edit/$1'); // Edit a task
