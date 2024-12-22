@@ -24,7 +24,6 @@ class AuthMiddleware implements FilterInterface
         }
 
         try {
-            // $decodedToken = JWT::decode($token, config('App')->JWT_SECRET_KEY, ['HS256']);
             $decodedToken = JWT::decode($token, new Key(config('App')->JWT_SECRET_KEY, 'HS256'));
             // Store user data from the token if needed
             $request->user = $decodedToken;

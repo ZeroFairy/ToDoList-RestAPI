@@ -11,6 +11,7 @@ class TodoController extends ResourceController
 {
     protected $modelName = 'App\Models\ToDo';
     protected $format = 'json';
+
     /**
      * Return an array of resource objects, themselves in array format.
      *

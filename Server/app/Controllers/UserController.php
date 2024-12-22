@@ -12,6 +12,7 @@ class UserController extends ResourceController
 {
     protected $modelName = 'App\Models\User';
     protected $format = 'json';
+    
     /**
      * Return an array of resource objects, themselves in array format.
      *
@@ -24,47 +25,47 @@ class UserController extends ResourceController
             'data_user' => $this->model->orderBy('id', 'ASC')->findAll()
         ];
 
-        return $this->respond($data, 200);
+        return $this->respond(setJSON($data), 200);
     }
 
-    // /**
-    //  * Return the properties of a resource object.
-    //  *
-    //  * @param int|string|null $id
-    //  *
-    //  * @return ResponseInterface
-    //  */
-    // public function show($id = null)
-    // {
-    //     $rules = $this->validate([
-    //         'password' => 'required|min_length[8]'
-    //     ]);
+    /**
+     * Return the properties of a resource object.
+     *
+     * @param int|string|null $id
+     *
+     * @return ResponseInterface
+     */
+    public function show($id = null)
+    {
+        $rules = $this->validate([
+            'password' => 'required|min_length[8]'
+        ]);
 
-    //     $enterPassword = $this->request->getVar('password');
-    //     echo "Entered Password: " . $enterPassword;
+        $enterPassword = $this->request->getVar('password');
+        echo "Entered Password: " . $enterPassword;
 
-    //     $user = $this->model->select('nama, email, password')->find($id);
-    //     echo "Stored Password Hash: " . $user['password'];
+        $user = $this->model->select('nama, email, password')->find($id);
+        echo "Stored Password Hash: " . $user['password'];
 
-    //     if ($user == null) {
-    //         return $this->FailNotFound('Data user not found');
-    //     }
+        if ($user == null) {
+            return $this->FailNotFound('Data user not found');
+        }
         
-    //     if (password_verify($enterPassword, $user['password'])) {
-    //         $data = [
-    //             'message' => 'success',
-    //             'user_name'  => $user['nama'],
-    //             'user_email'  => $user['email']
-    //         ];
+        if (password_verify($enterPassword, $user['password'])) {
+            $data = [
+                'message' => 'success',
+                'user_name'  => $user['nama'],
+                'user_email'  => $user['email']
+            ];
 
-    //         return $this->respond($data,200);
-    //     } else {
-    //         $data = [
-    //             'message' => 'password wrong'
-    //         ];
-    //         return $this ->respond($data,401);
-    //     }
-    // }
+            return $this->respond($data,200);
+        } else {
+            $data = [
+                'message' => 'password wrong'
+            ];
+            return $this ->respond($data,401);
+        }
+    }
     
     /**
      * Return the properties of a resource object.
@@ -73,45 +74,84 @@ class UserController extends ResourceController
      *
      * @return ResponseInterface
      */
-    public function login()
-    {
-        $rules = $this->validate([
-            'email' => 'required',
-            'password' => 'required|min_length[8]'
-        ]);
-        
-        $enterEmail = $this->request->getVar('email');
-        // echo "Enter email: " . $enterEmail;
+    public function login() {
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: http://localhost:5173');
+        header('Access-Control-Allow-Methods: POST');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept');
 
-        $user = $this->model->select('id, nama, email, password')->where('email', $enterEmail)->get()->getRowArray();
-        // echo "User by Email: " . $user['email'];
-        // echo "Stored Password Hash: " . $user['password'];
+        try {
+            $rules = $this->validate([
+                'email' => 'required',
+                'password' => 'required|min_length[8]'
+            ]);
 
-        $enterPassword = $this->request->getVar('password');
-        // echo "Entered Password: " . $enterPassword;
+            if (!$rules) {
+                return $this->response
+                    ->setStatusCode(400)
+                    ->setJSON([
+                        'status' => 'error',
+                        'message' => 'Validation failed',
+                        'errors' => $this->validator->getErrors()
+                    ]);
+            }
 
-        if ($user == null) {
-            return $this->FailNotFound('Data user not found');
-        }
-        
-        if (password_verify($enterPassword, $user['password'])) {
-            $tokenPayload = [
-                'id' => $user['id'],
-                'email' => $user['email'],
-                'exp' => time() + (60 * 60) // Token expiration (1 hour)
-            ];
+            $enterEmail = $this->request->getVar('email');
+            $enterPassword = $this->request->getVar('password');
 
-            $secretKey = config('App')->JWT_SECRET_KEY;
-            $token = JWT::encode($tokenPayload, $secretKey, 'HS256');
+            $user = $this->model->select('id, nama, email, password')
+                ->where('email', $enterEmail)
+                ->first();
 
-            // Return token to the client
-            return $this->respond(['token' => $token], 200);
-            
-        } else {
-            $data = [
-                'message' => 'password wrong'
-            ];
-            return $this ->respond($data,401);
+            if (!$user) {
+                return $this->response
+                    ->setStatusCode(404)
+                    ->setJSON([
+                        'status' => 'error',
+                        'message' => 'User not found'
+                    ]);
+            }
+
+            if (password_verify($enterPassword, $user['password'])) {
+                $tokenPayload = [
+                    'id' => $user['id'],
+                    'email' => $user['email'],
+                    'exp' => time() + (60 * 60)
+                ];
+
+                $token = JWT::encode(
+                    $tokenPayload,
+                    config('App')->JWT_SECRET_KEY,
+                    'HS256'
+                );
+
+                return $this->response
+                    ->setStatusCode(200)
+                    ->setJSON([
+                        'status' => 'success',
+                        'token' => $token,
+                        'user' => [
+                            'id' => $user['id'],
+                            'email' => $user['email'],
+                            'nama' => $user['nama']
+                        ]
+                    ]);
+            }
+
+            return $this->response
+                ->setStatusCode(401)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Invalid password'
+                ]);
+        } catch (Exception $e) {
+            log_message('error', 'Login error: ' . $e->getMessage());
+            return $this->response
+                ->setStatusCode(500)
+                ->setJSON([
+                    'status' => 'error',
+                    'message' => 'Internal server error'
+                ]);
         }
     }
 

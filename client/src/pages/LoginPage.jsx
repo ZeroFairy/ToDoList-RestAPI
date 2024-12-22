@@ -1,41 +1,85 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
-import { login, todo } from '../services/api'; // Import the API functions
+import axios from 'axios';
 
 export const LoginPage = () => {
-    const [formData, setFormData] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Check token validity on page load
+    const BASE_URL = 'http://localhost:8081';
+
+    const api = axios.create({
+        baseURL: 'http://localhost:8081',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    });
+
     useEffect(() => {
         const token = Cookies.get('ToDoToken');
         if (token) {
-            // Verify token with API using the todo endpoint
-            todo({ headers: { Authorization: `Bearer ${token}` } })
-                .then(() => navigate('/server/todo')) // Redirect if token is valid
-                .catch(() => Cookies.remove('ToDoToken')); // Remove invalid token
+            api.get('/api/todo', {
+                headers: { 
+                    Authorization: `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(() => navigate('/todo'))
+            .catch((error) => {
+                console.error('Token validation error:', error);
+                Cookies.remove('ToDoToken');
+            });
         }
     }, [navigate]);
 
-    // Update form input
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({ ...prevData, [name]: value }));
-    };
-
-    // Submit form data to the server
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+        
         try {
-            const response = await login(formData); // Use login from api.js
-            Cookies.set('ToDoToken', response.data.token, { secure: true, sameSite: 'Strict' });
-            navigate('/server/todo'); // Redirect on successful login
+            console.log('Attempting login...');
+            const response = await axios({
+                method: 'POST',
+                url: 'http://localhost:8081/api/login',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: formData
+            });
+
+            console.log('Login response:', response.data);
+
+            if (response.data.token) {
+                Cookies.set('ToDoToken', response.data.token, {
+                    path: '/',
+                    sameSite: 'lax'
+                });
+                navigate('/todo');
+            }
         } catch (error) {
-            setError(error.response?.data?.message || 'Login failed. Please try again.');
+            console.error('Login error:', error);
+            if (error.response) {
+                // Server responded with an error
+                setError(error.response.data.message);
+            } else if (error.request) {
+                // Request was made but no response
+                setError('No response from server. Please try again.');
+            } else {
+                // Something else went wrong
+                setError('An error occurred. Please try again.');
+            }
         }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
     };
 
     return (
@@ -43,7 +87,7 @@ export const LoginPage = () => {
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <input
-                    type="email"
+                    type="text"
                     name="email"
                     placeholder="Email"
                     value={formData.email}

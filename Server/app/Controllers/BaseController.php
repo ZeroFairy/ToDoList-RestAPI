@@ -8,6 +8,7 @@ use CodeIgniter\HTTP\IncomingRequest;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
+use CodeIgniter\RESTful\ResourceController;
 
 /**
  * Class BaseController
@@ -56,3 +57,73 @@ abstract class BaseController extends Controller
         // E.g.: $this->session = \Config\Services::session();
     }
 }
+
+// namespace App\Controllers;
+
+// use CodeIgniter\RESTful\ResourceController;
+// use CodeIgniter\HTTP\ResponseInterface;
+
+// class BaseController extends ResourceController
+// {
+//     protected $response;
+//     protected $format = 'json';
+
+//     public function __construct()
+//     {
+//         // Set default headers for all responses
+//         $this->response = service('response');
+//         $this->response->setHeader('Content-Type', 'application/json');
+//         $this->response->setHeader('X-Content-Type-Options', 'nosniff');
+//     }
+
+//     /**
+//      * Send a success response
+//      */
+//     protected function sendSuccess($data = null, string $message = 'Success', int $code = 200)
+//     {
+//         return $this->response->setStatusCode($code)
+//             ->setJSON([
+//                 'status' => 'success',
+//                 'message' => $message,
+//                 'data' => $data
+//             ]);
+//     }
+
+//     /**
+//      * Send an error response
+//      */
+//     protected function sendError($message = 'Error', $errors = null, int $code = 400)
+//     {
+//         return $this->response->setStatusCode($code)
+//             ->setJSON([
+//                 'status' => 'error',
+//                 'message' => $message,
+//                 'errors' => $errors
+//             ]);
+//     }
+
+//     /**
+//      * Handle validation errors
+//      */
+//     protected function handleValidationErrors($validator)
+//     {
+//         return $this->sendError(
+//             'Validation failed',
+//             $validator->getErrors(),
+//             422
+//         );
+//     }
+
+//     /**
+//      * Handle database errors
+//      */
+//     protected function handleDatabaseError(\Exception $e)
+//     {
+//         log_message('error', 'Database Error: ' . $e->getMessage());
+//         return $this->sendError(
+//             'Database error occurred',
+//             null,
+//             500
+//         );
+//     }
+// }
