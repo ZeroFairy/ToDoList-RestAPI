@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
 // import { SignupPage } from "./pages/SignupPage";
 
 function App() {
@@ -13,8 +14,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         {/* <Route path="/signup" element={<SignupPage />} /> */}
         
-        {/* Add a catch-all route for 404s */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Sign Up Routes */}
+        <Route path="/signup" element={<SignupPage />} />
       </Routes>
     </Router>
   );
