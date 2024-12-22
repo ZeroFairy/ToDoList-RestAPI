@@ -18,18 +18,18 @@ export const LoginPage = () => {
 
     useEffect(() => {
         const token = Cookies.get('ToDoToken');
-        if (token) {
-            api.get('/api/todo', {
-                headers: { 
-                    Authorization: `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(() => navigate('/todo'))
-            .catch((error) => {
-                console.error('Token validation error:', error);
-                Cookies.remove('ToDoToken');
-            });
+        if (!token) {
+            // throw new Error('Token not found');
+            console.error('Token not found');
+        } else {
+            // get id from token
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+        
+            const id = payload.id
+            console.log(payload.id);
+            navigate(`/todo/${id}`);
         }
     }, [navigate]);
 
@@ -55,7 +55,9 @@ export const LoginPage = () => {
                     path: '/',
                     sameSite: 'lax'
                 });
-                navigate('/todo');
+
+                const id = response.data.user.id
+                navigate(`/todo/${id}`);
             }
         } catch (error) {
             console.error('Login error:', error);
