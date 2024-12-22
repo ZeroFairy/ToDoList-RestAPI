@@ -16,6 +16,9 @@ function App() {
         
         {/* Sign Up Routes */}
         <Route path="/signup" element={<SignupPage />} />
+
+        {/* To Do Routes */}
+        <Route path="/todo" element={<ToDoPage />} />
       </Routes>
     </Router>
   );
