@@ -42,18 +42,66 @@ export const signup = async (formData) => {
             throw setError('An error occurred. Please try again.');
         }
     }
-
-    // try {
-    //     const response = await api.post('/server/user', userData);
-    //     return response.data;
-    // } catch (error) {
-    //     throw error;
-    // }
 };
 
-export const todo = async () => {
+export const gettodo = async (id, token) => {
     try {
-        const response = await api.get('/server/todo');
+        // Add a console.log to debug the URL and token
+        console.log('Fetching todos for ID:', id);
+        console.log('Using token:', token);
+        
+        const response = await axios({
+            method: 'GET',
+            url: `http://localhost:8081/api/todo/${id}`,
+            // url: `${API_BASE_URL}/api/todo/${id}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        // Add response logging
+        console.log('API Response:', response);
+        
+        return response.data;
+    } catch (error) {
+        // Enhanced error logging
+        console.error('Detailed error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            config: error.config
+        });
+        throw error;
+    }
+};
+
+export const addtodo = async (todoData, token) => {
+    try {
+        const response = await api.post('/api/todo', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            data: todoData
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const updatetodo = async (id, todoData) => {
+    try {
+        const response = await api.post(`/api/todo/update/${id}`, todoData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const deletetodo = async (id) => {
+    try {
+        const response = await api.delete(`/api/todo/${id}`);
         return response.data;
     } catch (error) {
         throw error;
