@@ -8,8 +8,6 @@ export const LoginPage = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const BASE_URL = 'http://localhost:8081';
-
     const api = axios.create({
         baseURL: 'http://localhost:8081',
         headers: {
@@ -62,13 +60,10 @@ export const LoginPage = () => {
         } catch (error) {
             console.error('Login error:', error);
             if (error.response) {
-                // Server responded with an error
                 setError(error.response.data.message);
             } else if (error.request) {
-                // Request was made but no response
                 setError('No response from server. Please try again.');
             } else {
-                // Something else went wrong
                 setError('An error occurred. Please try again.');
             }
         }
