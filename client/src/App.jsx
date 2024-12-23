@@ -19,7 +19,6 @@ function App() {
 
         {/* To Do Routes */}
         <Route path="/todo/:id" element={<ToDoPage />} />
-        {/* <Route path="/todo/*" element={<ToDoPage />} /> */}
       </Routes>
     </Router>
   );
