@@ -19,17 +19,21 @@ export const LoginPage = () => {
     useEffect(() => {
         const token = Cookies.get('ToDoToken');
         if (!token) {
-            // throw new Error('Token not found');
             console.error('Token not found');
         } else {
-            // get id from token
             const base64Url = token.split('.')[1];
             const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
             const payload = JSON.parse(window.atob(base64));
         
-            const id = payload.id
-            console.log(payload.id);
-            navigate(`/todo/${id}`);
+            const currentTime = Math.floor(Date.now() / 1000);
+            if (currentTime > payload.exp) {
+                Cookies.remove('ToDoToken');
+                navigate('/login');
+            } else {
+                const id = payload.id
+                console.log(payload.id);
+                navigate(`/todo/${id}`);
+            }
         }
     }, [navigate]);
 
