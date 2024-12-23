@@ -92,6 +92,8 @@ export const LoginPage = () => {
                 <button type="submit">Login</button>
             </form>
             {error && <p style={{ color: 'red' }}>{error}</p>}
+
+            Don't got a account or forget the account <a href="/signup">Sign Up</a> Here
         </div>
     );
 };
