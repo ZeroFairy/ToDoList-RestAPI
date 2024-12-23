@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { gettodo, addtodo, updatetodo, deletetodo } from '../services/api';
+import { gettodo, addtodo, toggleTodo, deletetodo } from '../services/api';
 import { NewTodoForm } from '../components/NewTodoForm';
 import { ToDoList } from '../components/ToDoList';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -11,7 +11,6 @@ export function ToDoPage() {
     const {id} = useParams();
     const navigate = useNavigate();
 
-    // Fetch todos on component mount
     useEffect(() => {
         const token = Cookies.get('ToDoToken');
         if (!token) {
@@ -44,16 +43,18 @@ export function ToDoPage() {
 
     async function handleAddTodo(title) {
         try {
-            const response = await addtodo({ task: title });
-            if (response.data) {
-                setTodos(currentTodos => [
-                    ...currentTodos,
-                    {
-                        id: response.data.id,
-                        title: title,
-                        completed: false
-                    }
-                ]);
+            const token = Cookies.get('ToDoToken');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+
+            const response = await addtodo({ 
+                task: title
+            }, token);
+
+            if (response.message === 'Data Task Berhasil Dibuat') {
+                await fetchTodos(id, token);
             }
         } catch (err) {
             setError('Failed to add todo');
@@ -61,29 +62,51 @@ export function ToDoPage() {
         }
     }
 
-    async function handleToggleTodo(id, completed) {
+    async function handleToggleTodo(id) { 
         try {
-            await updatetodo(id, { status: completed ? 'finished' : 'unfinished' });
-            setTodos(currentTodos => {
-                return currentTodos.map(todo => {
-                    if (todo.id === id) {
-                        return { ...todo, completed }
-                    }
-                    return todo
-                })
-            });
+            const token = Cookies.get('ToDoToken');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+    
+            const response = await toggleTodo(id, token);
+            
+            if (response.message === 'Status Task Berhasil Diubah') {
+                const newStatus = response.data.status;
+                setTodos(currentTodos => 
+                    currentTodos.map(todo => {
+                        if (todo.id === id) {
+                            return {
+                                ...todo,
+                                completed: newStatus === 'finished'
+                            };
+                        }
+                        return todo;
+                    })
+                );
+            }
         } catch (err) {
-            setError('Failed to update todo');
-            console.error('Error updating todo:', err);
+            setError('Failed to update todo status');
+            console.error('Error updating todo status:', err);
         }
     }
 
     async function handleDeleteTodo(id) {
         try {
-            await deletetodo(id);
-            setTodos(currentTodos => {
-                return currentTodos.filter(todo => todo.id !== id)
-            });
+            const token = Cookies.get('ToDoToken');
+            if (!token) {
+                navigate('/login');
+                return;
+            }
+    
+            const response = await deletetodo(id, token);
+            
+            if (response.message === 'Task Berhasil Dihapus') {
+                setTodos(currentTodos => 
+                    currentTodos.filter(todo => todo.id !== id)
+                );
+            }
         } catch (err) {
             setError('Failed to delete todo');
             console.error('Error deleting todo:', err);
