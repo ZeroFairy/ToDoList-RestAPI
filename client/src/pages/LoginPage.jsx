@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../services/api';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
@@ -43,15 +44,7 @@ export const LoginPage = () => {
         
         try {
             console.log('Attempting login...');
-            const response = await axios({
-                method: 'POST',
-                url: 'http://localhost:8081/api/login',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                data: formData
-            });
-
+            const response = await login(formData);
             console.log('Login response:', response.data);
 
             if (response.data.token) {
@@ -65,13 +58,6 @@ export const LoginPage = () => {
             }
         } catch (error) {
             console.error('Login error:', error);
-            if (error.response) {
-                setError(error.response.data.message);
-            } else if (error.request) {
-                setError('No response from server. Please try again.');
-            } else {
-                setError('An error occurred. Please try again.');
-            }
         }
     };
 
