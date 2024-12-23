@@ -42,20 +42,105 @@ export const signup = async (formData) => {
             throw setError('An error occurred. Please try again.');
         }
     }
-
-    // try {
-    //     const response = await api.post('/server/user', userData);
-    //     return response.data;
-    // } catch (error) {
-    //     throw error;
-    // }
 };
 
-export const todo = async () => {
+export const gettodo = async (id, token) => {
     try {
-        const response = await api.get('/server/todo');
+        console.log('Fetching todos for ID:', id);
+        console.log('Using token:', token);
+        
+        const response = await axios({
+            method: 'GET',
+            url: `${API_BASE_URL}/api/todo/${id}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        console.log('API Response:', response);
+        
         return response.data;
     } catch (error) {
+        console.error('Detailed error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            config: error.config
+        });
+        throw error;
+    }
+};
+
+export const addtodo = async (task, token) => {
+    try {
+        console.log('Task:', task);
+        console.log('Using token:', token);
+        
+        const response = await axios({
+            method: 'POST',
+            url: `${API_BASE_URL}/api/todo`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            data: task
+        });
+        
+        console.log('API Response:', response);
+        
+        return response.data;
+    } catch (error) {
+        console.error('Detailed error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            config: error.config
+        });
+        throw error;
+    }
+};
+
+export const toggleTodo = async (id, token) => {
+    try {
+        const response = await axios({
+            method: 'POST',
+            url: `${API_BASE_URL}/api/todo/${id}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Detailed error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            config: error.config
+        });
+        throw error;
+    }
+};
+
+export const deletetodo = async (id, token) => {
+    try {
+        const response = await axios({
+            method: 'DELETE',
+            url: `${API_BASE_URL}/api/todo/${id}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Detailed error:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            config: error.config
+        });
         throw error;
     }
 };

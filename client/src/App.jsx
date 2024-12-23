@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
-// import { SignupPage } from "./pages/SignupPage";
+import { ToDoPage } from "./pages/ToDoPage";
 
 function App() {
   return (
@@ -16,6 +16,9 @@ function App() {
         
         {/* Sign Up Routes */}
         <Route path="/signup" element={<SignupPage />} />
+
+        {/* To Do Routes */}
+        <Route path="/todo/:id" element={<ToDoPage />} />
       </Routes>
     </Router>
   );
