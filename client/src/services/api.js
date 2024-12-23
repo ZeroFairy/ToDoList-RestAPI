@@ -11,12 +11,29 @@ export const api = axios.create({
     responseType: 'json'
 });
 
-export const login = async (credentials) => {
+export const login = async (formData) => {
     try {
-        const response = await api.post('/server/login', credentials);
-        return response.data;
+        console.log('Attempting login...');
+        const response = await axios({
+            method: 'POST',
+            url: `${API_BASE_URL}/api/login`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: formData
+        });
+
+        console.log('Login response:', response.data);
+        return response;
     } catch (error) {
-        throw error;
+        console.error('Login error:', error);
+        if (error.response) {
+            setError(error.response.data.message);
+        } else if (error.request) {
+            setError('No response from server. Please try again.');
+        } else {
+            setError('An error occurred. Please try again.');
+        }
     }
 };
 
@@ -24,7 +41,7 @@ export const signup = async (formData) => {
     try {
         const response = await axios({
             method: 'POST',
-            url: 'http://localhost:8081/api/signup',
+            url: `${API_BASE_URL}/api/signup`,
             headers: {
                 'Content-Type': 'application/json',
             },
